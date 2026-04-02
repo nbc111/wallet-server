@@ -1,5 +1,12 @@
 # Swagger Example API
 [toc]
+
+## 通用说明
+
+- **Base URL**：默认 `http://127.0.0.1:10001`（以配置 `app.port` 为准）。
+- **鉴权**：所有 `/api/*` 请求须在请求头携带 **`x-token`**（任意非空字符串；示例：`dev`）。
+- **响应**：HTTP 状态码一般为 `200`，业务是否成功看 JSON 中的 **`code`**（`0` 表示成功）。
+
 ## 1	环境变量
 
 ### 默认环境1
@@ -104,6 +111,9 @@
 ## 6	获取交易结果
 
 > GET  /api/getTransactionReceipt
+
+**说明**：路由注册为 **GET**，但 Handler 使用 **`ShouldBindJSON`**，请求需带 **JSON 请求体**（curl 示例见文末）。若使用浏览器或部分客户端，可改为与 Handler 一致的绑定方式（或封装为 POST）。
+
 ### 请求体(Request Body)
 | 参数名称 | 数据类型 | 默认值 | 不为空 | 描述 |
 | ------ | ------ | ------ | ------ | ------ |
@@ -152,5 +162,47 @@
 ##### 接口描述
 > 
 
+## 8	curl 一键验证（与上文接口对应）
 
+先启动服务，例如：
+
+```shell
+go run . -c config/dev.yml
+```
+
+另开终端执行（默认访问 `http://127.0.0.1:10001`，`eth` + `ETH` 引擎）：
+
+```shell
+bash script/curl_api.sh
+```
+
+或：`make curl-api`。
+
+环境变量可选：`API_BASE`、`API_TOKEN`、`PROTOCOL`、`COIN_NAME`。
+
+**单条 curl 示例**（创建钱包）：
+
+```shell
+curl -s -X POST "http://127.0.0.1:10001/api/createWallet" \
+  -H "Content-Type: application/json" \
+  -H "x-token: dev" \
+  -d '{"protocol":"eth","coinName":"ETH"}'
+```
+
+**获取交易结果**（GET + JSON 体，与实现一致）：
+
+```shell
+curl -s -X GET "http://127.0.0.1:10001/api/getTransactionReceipt" \
+  -H "Content-Type: application/json" \
+  -H "x-token: dev" \
+  -d '{"protocol":"eth","coinName":"ETH","hash":"0x0000000000000000000000000000000000000000000000000000000000000000"}'
+```
+
+**返回码说明（curl 冒烟常见）**
+
+| 接口 | code=0 时 | 常见非 0 |
+|------|-----------|----------|
+| getTransactionReceipt | 能解析请求；`data.status`：1 成功，0 未上链/无回执 | 节点 RPC 异常等 |
+| collection | 归集逻辑执行完毕；`data.balance` 为归集数量（未达门槛可为 `"0"`） | **10004**：本地无该充值地址；**10001**：多为公网 RPC 读余额失败（可重试） |
+| withdraw | 链上已发起转账 | **10001**：热钱包无余额 / Gas 不足等 |
 

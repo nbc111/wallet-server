@@ -56,3 +56,38 @@
 11:27:44.142915 db@janitor F·7 G·0
 11:27:44.142933 db@open done T·42.157083ms
 11:27:44.144601 table@compaction L0·5 -> L1·0 S·775B Q·23
+=============== Apr 2, 2026 (CST) ===============
+17:49:42.498762 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+17:49:42.501250 version@stat F·[5] S·775B[775B] Sc·[1.25]
+17:49:42.501297 db@open opening
+17:49:42.501576 journal@recovery F·1
+17:49:42.502126 journal@recovery recovering @15
+17:49:42.517393 memdb@flush created L0@17 N·3 S·155B "111,v23":"wal..aaa,v22"
+17:49:42.517723 version@stat F·[6] S·930B[930B] Sc·[1.50]
+17:49:42.548987 db@janitor F·8 G·0
+17:49:42.549026 db@open done T·47.717959ms
+17:49:42.549295 table@compaction L0·6 -> L1·0 S·930B Q·27
+=============== Apr 2, 2026 (CST) ===============
+18:05:00.246380 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+18:05:00.248133 version@stat F·[6] S·930B[930B] Sc·[1.50]
+18:05:00.248161 db@open opening
+18:05:00.248288 journal@recovery F·1
+18:05:00.248801 journal@recovery recovering @18
+18:05:00.263734 memdb@flush created L0@20 N·3 S·155B "111,v27":"wal..aaa,v26"
+18:05:00.264211 version@stat F·[7] S·1KiB[1KiB] Sc·[1.75]
+18:05:00.292862 db@janitor F·9 G·0
+18:05:00.292890 db@open done T·44.720333ms
+18:05:00.293160 table@compaction L0·7 -> L1·0 S·1KiB Q·31
+=============== Apr 2, 2026 (CST) ===============
+18:09:52.696407 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+18:09:52.698132 version@stat F·[7] S·1KiB[1KiB] Sc·[1.75]
+18:09:52.698201 db@open opening
+18:09:52.698362 journal@recovery F·1
+18:09:52.698885 journal@recovery recovering @21
+18:09:52.706137 memdb@flush created L0@23 N·3 S·155B "111,v31":"wal..aaa,v30"
+18:09:52.706678 version@stat F·[8] S·1KiB[1KiB] Sc·[2.00]
+18:09:52.733064 db@janitor F·10 G·0
+18:09:52.733094 db@open done T·34.881666ms
+18:09:52.733257 table@compaction L0·8 -> L1·0 S·1KiB Q·32
+18:09:52.740235 table@build created L1@26 N·3 S·155B "111,v31":"wal..aaa,v30"
+18:09:52.740519 version@stat F·[0 1] S·155B[0B 155B] Sc·[0.00 0.00]

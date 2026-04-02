@@ -57,6 +57,14 @@ func (c *ConCurrentEngine) Run() {
 	select {}
 }
 
+// Close 释放 LevelDB。未启动 Run 时可用于测试收尾；生产环境若已执行 Run 则勿与区块循环并发调用。
+func (c *ConCurrentEngine) Close() error {
+	if c.db == nil {
+		return nil
+	}
+	return c.db.Close()
+}
+
 // blockLoop 区块循环监听
 func (c *ConCurrentEngine) blockLoop() {
 	// 读取当前区块
@@ -127,10 +135,20 @@ func (c *ConCurrentEngine) createBlockWorker(out chan types.Transaction) {
 		for {
 			c.scheduler.BlockWorkerReady(in)
 			num := <-in
-			log.Info().Msgf("%v，监听区块：%d", c.config.CoinName, num)
+			// num 为本地同步游标（block_init / DB 中 block_number），不是链上「当前高度」。
+			if num == 0 {
+				log.Info().Msgf("%v，同步游标：0（库中尚无 block_number，首次启动）", c.config.CoinName)
+			} else {
+				log.Info().Msgf("%v，同步游标：%d", c.config.CoinName, num)
+			}
 			transactions, blockNum, err := c.Worker.GetTransaction(num)
 			if err != nil || blockNum == num {
-				log.Info().Msgf("等待%d秒，当前已是最新区块", c.config.BlockAfterTime)
+				latest, errLatest := c.Worker.GetNowBlockNum()
+				if errLatest != nil {
+					log.Info().Msgf("等待%d秒，已追上链头（同步游标=%d，链上最新高度：查询失败 %v）", c.config.BlockAfterTime, num, errLatest)
+				} else {
+					log.Info().Msgf("等待%d秒，已追上链头（同步游标=%d，链上最新高度=%d）", c.config.BlockAfterTime, num, latest)
+				}
 				<-time.After(time.Duration(c.config.BlockAfterTime) * time.Second)
 				c.scheduler.BlockSubmit(num)
 				continue

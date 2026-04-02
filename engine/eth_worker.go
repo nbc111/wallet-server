@@ -64,6 +64,11 @@ func (e *EthWorker) GetTransactionReceipt(transaction *types.Transaction) error 
 
 	receipt, err := e.http.TransactionReceipt(context.Background(), hash)
 	if err != nil {
+		// 链上尚无回执（未打包或哈希无效）：按未成功处理，避免误报 500
+		if errors.Is(err, ethereum.NotFound) {
+			transaction.Status = 0
+			return nil
+		}
 		return err
 	}
 
@@ -107,12 +112,21 @@ func (e *EthWorker) GetTransaction(num uint64) ([]types.Transaction, uint64, err
 }
 
 // getBlockTransaction 获取主币的交易信息
+// num==0 表示尚未建立游标：拉取当前链头块（与 GetTransaction 注释「0 表示最新」一致），
+// 返回下一待处理高度为 链头高度+1；num>0 则按高度顺序扫描。
 func (e *EthWorker) getBlockTransaction(num uint64) ([]types.Transaction, uint64, error) {
+	var numberArg *big.Int
+	if num == 0 {
+		numberArg = nil // ethclient: nil 表示最新块
+	} else {
+		numberArg = big.NewInt(int64(num))
+	}
 
-	block, err := e.http.BlockByNumber(context.Background(), big.NewInt(int64(num)))
+	block, err := e.http.BlockByNumber(context.Background(), numberArg)
 	if err != nil {
 		return nil, num, err
 	}
+	height := block.NumberU64()
 
 	chainID, err := e.http.NetworkID(context.Background())
 	if err != nil {
@@ -130,7 +144,7 @@ func (e *EthWorker) getBlockTransaction(num uint64) ([]types.Transaction, uint64
 			continue
 		}
 		transactions = append(transactions, types.Transaction{
-			BlockNumber: big.NewInt(int64(num)),
+			BlockNumber: big.NewInt(int64(height)),
 			BlockHash:   block.Hash().Hex(),
 			Hash:        tx.Hash().Hex(),
 			From:        msg.From().Hex(),
@@ -138,7 +152,7 @@ func (e *EthWorker) getBlockTransaction(num uint64) ([]types.Transaction, uint64
 			Value:       tx.Value(),
 		})
 	}
-	return transactions, num + 1, nil
+	return transactions, height+1, nil
 }
 
 // getTokenTransaction 获取代币的交易信息

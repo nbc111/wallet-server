@@ -1,6 +1,10 @@
 package btc
 
 import (
+	"net"
+	"net/url"
+	"strings"
+
 	"github.com/btcsuite/btcd/btcjson"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/rpcclient"
@@ -12,11 +16,41 @@ type Client struct {
 	rpc *rpcclient.Client
 }
 
+// parseRPCHost 支持本地 host:port（明文）或 https:// / http:// 网关（如 Tatum），后者启用 TLS。
+func parseRPCHost(raw string) (host string, disableTLS bool) {
+	if strings.HasPrefix(raw, "https://") {
+		u, err := url.Parse(raw)
+		if err != nil {
+			return raw, true
+		}
+		h := u.Hostname()
+		port := u.Port()
+		if port == "" {
+			port = "443"
+		}
+		return net.JoinHostPort(h, port), false
+	}
+	if strings.HasPrefix(raw, "http://") {
+		u, err := url.Parse(raw)
+		if err != nil {
+			return raw, true
+		}
+		h := u.Hostname()
+		port := u.Port()
+		if port == "" {
+			port = "80"
+		}
+		return net.JoinHostPort(h, port), false
+	}
+	return raw, true
+}
+
 func NewClient(host, user, pass string) (*Client, error) {
+	connHost, disableTLS := parseRPCHost(host)
 	client, err := rpcclient.New(&rpcclient.ConnConfig{
 		HTTPPostMode: true,
-		DisableTLS:   true,
-		Host:         host,
+		DisableTLS:   disableTLS,
+		Host:         connHost,
 		User:         user,
 		Pass:         pass,
 	}, nil)

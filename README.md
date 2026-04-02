@@ -5,6 +5,12 @@
 >
 > 完全实现与业务服务隔离，使用http服务相互调用
 
+# 计划支持
+- [x] 以太坊（ERC20）
+- [x] 波场（TRC20）
+- [x] 币安（BEP20）
+- [x] OKC（KIP20）
+- [x] 比特币
 
 ## 多链与主流币种（TRC20 / BEP20 / ERC20）
 
@@ -12,17 +18,17 @@
 
 | 链 | 代币标准 | `protocol` | `contract` | `contract_type` | `rpc` |
 |----|-----------|--------------|------------|-----------------|--------|
-| 波场 | TRC20（如 USDT） | `trx` | T 开头的合约地址 | `trc20` | Tron gRPC 节点 |
+| 波场 | TRC20（如 USDT） | `trx` | T 开头的合约地址 | `trc20` | **gRPC** 地址（如 `grpc.trongrid.io:50051`）；与仅提供 **JSON-RPC** 的 HTTP 网关（如部分 Tatum 地址）**不兼容** |
 | 币安智能链 | BEP20（如 USDT） | `eth` | `0x` 合约地址 | `erc20`（示例里可写） | **BSC** 的 JSON-RPC 地址 |
 | 以太坊 | ERC20（如 USDT） | `eth` | `0x` 合约地址 | `erc20` | **以太坊** JSON-RPC |
 | 以太坊 | 主币 ETH | `eth` | 留空 | 留空 | 以太坊 JSON-RPC |
-| 比特币 | 主网 BTC | `btc` | 留空 | 留空 | bitcoind RPC；`network` 填 `MainNet` 等 |
+| 比特币 | 主网 BTC | `btc` | 留空 | 留空 | 本地 bitcoind（`host:port`）或 **HTTPS** JSON-RPC 网关（如 Tatum：`https://bitcoin-mainnet.gateway.tatum.io`，`user`/`pass` 按网关要求填 API Key）；`network` 填 `MainNet` 等 |
 
 说明：**BEP20 与 ERC20 共用 `protocol: eth`**，通过 `rpc` 指向 BSC 或以太坊即可区分链；`coin_name` 建议用业务可读的名称（如 `USDT`、`USDT-BSC`、`USDT-TRC`），避免同名冲突。
 
 # 接口文档
 
-`script/api.md`
+`script/api.md`（curl 冒烟：`make curl-api` 或 `bash script/curl_api.sh`，需先启动服务）
 
 # 下载-打包
 
@@ -66,6 +72,17 @@ bash script/test_multi_chain.sh
 ```
 
 等价：`go test -count=1 ./engine/ -run 'TestDeposit_|TestIntegration_Deposit'`（多链存入/归集财务地址相关）。集成测试需访问公网 RPC；仅跑单元测试可用 `go test -short ./engine/`（会跳过链上集成用例）。
+
+## HTTP 服务验证（与单元测试等价场景）
+
+在**真实 HTTP** 上验证 `POST /api/createWallet`（`x-token` + `protocol` + `coinName`），覆盖与 `engine/chain_deposit_test.go` 相同的多链用例：
+
+| 方式 | 说明 |
+|------|------|
+| **Shell** | `make test-http` 或 `bash script/test_http.sh`：读取 `config/http-integration.yml`（默认端口 **10009**），启动进程后对 ETH / USDT-ERC20 / USDT-BEP20 / USDT-TRC20 / BTC 依次 curl。 |
+| **Go httptest** | `go test ./server/ -run 'TestIntegration_HTTP|TestHTTP_'`（集成用例需外网 RPC；`TestHTTP_CreateWallet_NoToken` 可随时跑）。 |
+
+环境变量（可选）：`HTTP_TEST_PORT`、`HTTP_TEST_CONFIG`、`HTTP_TEST_TOKEN`。
 
 # 重新生成配置
 

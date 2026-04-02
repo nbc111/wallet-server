@@ -1,10 +1,13 @@
 package server
 
 import (
+	"errors"
+	"math/big"
+
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/gin-gonic/gin"
 	"github.com/lmxdawn/wallet/engine"
-	"math/big"
+	"github.com/syndtr/goleveldb/leveldb"
 )
 
 // CreateWallet ...
@@ -154,6 +157,10 @@ func Collection(c *gin.Context) {
 
 	balance, err := currentEngine.Collection(q.Address, max)
 	if err != nil {
+		if errors.Is(err, leveldb.ErrNotFound) {
+			APIResponse(c, ErrNotData, nil)
+			return
+		}
 		APIResponse(c, err, nil)
 		return
 	}

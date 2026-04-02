@@ -1,0 +1,114 @@
+# 供 script/test_http.sh 启动服务，用 HTTP 验证与 engine/chain_deposit_test 一致的多链 createWallet。
+# 端口 10009，避免与默认 dev 10001 冲突。
+app:
+  port: 10009
+engines:
+  - coin_name: ETH
+    contract:
+    contract_type:
+    protocol: eth
+    rpc: https://mainnet.infura.io/v3/280705d4b1d0400e838890ebd5174f23
+    file: data/http-test-eth
+    wallet_prefix: wallet-
+    hash_prefix: hash-
+    block_init: 0
+    block_after_time: 60
+    receipt_count: 1
+    receipt_after_time: 60
+    collection_after_time: 60
+    collection_count: 1
+    collection_max: "0"
+    collection_address: "0x0000000000000000000000000000000000000001"
+    confirms: 12
+    recharge_notify_url: http://127.0.0.1:9/recharge
+    withdraw_notify_url: http://127.0.0.1:9/withdraw
+    withdraw_private_key: 61774dacba914e5675eef6c616df85c61d7c8917f56ee77f547a140f8f982d31
+
+  - coin_name: USDT-ERC20
+    contract: "0xdAC17F958D2ee523a2206206994597C13D831ec7"
+    contract_type: erc20
+    protocol: eth
+    rpc: https://mainnet.infura.io/v3/280705d4b1d0400e838890ebd5174f23
+    file: data/http-test-usdt-eth
+    wallet_prefix: wallet-
+    hash_prefix: hash-
+    block_init: 0
+    block_after_time: 60
+    receipt_count: 1
+    receipt_after_time: 60
+    collection_after_time: 60
+    collection_count: 1
+    collection_max: "0"
+    collection_address: "0x0000000000000000000000000000000000000001"
+    confirms: 12
+    recharge_notify_url: http://127.0.0.1:9/recharge
+    withdraw_notify_url: http://127.0.0.1:9/withdraw
+    withdraw_private_key: 61774dacba914e5675eef6c616df85c61d7c8917f56ee77f547a140f8f982d31
+
+  - coin_name: USDT-BEP20
+    contract: "0x55d398326f99059fF775485246999027B3197955"
+    contract_type: erc20
+    protocol: eth
+    rpc: https://bsc-mainnet.infura.io/v3/280705d4b1d0400e838890ebd5174f23
+    file: data/http-test-usdt-bsc
+    wallet_prefix: wallet-
+    hash_prefix: hash-
+    block_init: 0
+    block_after_time: 60
+    receipt_count: 1
+    receipt_after_time: 60
+    collection_after_time: 60
+    collection_count: 1
+    collection_max: "0"
+    collection_address: "0x0000000000000000000000000000000000000002"
+    confirms: 12
+    recharge_notify_url: http://127.0.0.1:9/recharge
+    withdraw_notify_url: http://127.0.0.1:9/withdraw
+    withdraw_private_key: 61774dacba914e5675eef6c616df85c61d7c8917f56ee77f547a140f8f982d31
+
+  # TRON：`rpc` 必须为 gRPC（gotron）。Tatum JSON-RPC 仅作记录，勿填进 rpc： https://rpc-2c9d4809.gateway.tatum.io/jsonrpc
+  - coin_name: USDT-TRC20
+    contract: TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t
+    contract_type: trc20
+    protocol: trx
+    rpc: https://rpc-2c9d4809.gateway.tatum.io/jsonrpc/
+    file: data/http-test-usdt-trc
+    wallet_prefix: wallet-
+    hash_prefix: hash-
+    block_init: 0
+    block_after_time: 60
+    receipt_count: 1
+    receipt_after_time: 60
+    collection_after_time: 60
+    collection_count: 1
+    collection_max: "0"
+    collection_address: TYBpNWMNHPyk1hBbY1SRr2RQebF39iFk7z
+    confirms: 12
+    recharge_notify_url: http://127.0.0.1:9/recharge
+    withdraw_notify_url: http://127.0.0.1:9/withdraw
+    withdraw_private_key: a0e0ac9b3a1ee1a27411642b7ff60030887c6b78c89d498aba49adedceb4233b
+
+  # BTC：支持 https 网关；Tatum 常在 user 填 API Key、pass 留空（以 Tatum 文档为准）。
+  - coin_name: BTC
+    contract:
+    contract_type:
+    protocol: btc
+    network: MainNet
+    rpc: https://bitcoin-mainnet.gateway.tatum.io
+    user: ""
+    pass: ""
+    file: data/http-test-btc
+    wallet_prefix: wallet-
+    hash_prefix: hash-
+    block_init: 0
+    block_after_time: 60
+    receipt_count: 1
+    receipt_after_time: 60
+    collection_after_time: 60
+    collection_count: 1
+    collection_max: "0"
+    collection_address: bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh
+    confirms: 6
+    recharge_notify_url: http://127.0.0.1:9/recharge
+    withdraw_notify_url: http://127.0.0.1:9/withdraw
+    withdraw_private_key: ""
