@@ -1,0 +1,25 @@
+# 本地开发推荐：仅启用以太坊（公开 RPC），无需 bitcoind / Tron 节点。
+# 启动：go run . -c config/dev.yml
+app:
+  port: 10001
+engines:
+  - coin_name: ETH
+    contract:
+    contract_type:
+    protocol: eth
+    rpc: https://cloudflare-eth.com
+    file: data/eth-dev
+    wallet_prefix: wallet-
+    hash_prefix: hash-
+    block_init: 0
+    block_after_time: 5
+    receipt_count: 2
+    receipt_after_time: 2
+    collection_after_time: 2
+    collection_count: 2
+    collection_max: "0"
+    collection_address: "0x0000000000000000000000000000000000000001"
+    confirms: 12
+    recharge_notify_url: http://127.0.0.1:9/recharge
+    withdraw_notify_url: http://127.0.0.1:9/withdraw
+    withdraw_private_key: 61774dacba914e5675eef6c616df85c61d7c8917f56ee77f547a140f8f982d31
